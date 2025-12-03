@@ -1,1 +1,1 @@
-explore transformer and diffusion performance in time series prediction
+How do diff time-series input dist (stat vs non-stat, heavy-tailed, regime...) affect what Transformers pay attention to?
