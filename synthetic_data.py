@@ -348,7 +348,7 @@ def simulate_multi_seasonality(T, N=1, freqs=(24, 100), amps=(1.0, 0.5), noise_s
 # (I) Structural Break (Trend): Sudden slope shift in mean
 # ---------------------------------------------------------------------
 
-def simulate_trend_break(T, N=1, slope1=0.01, slope2=-0.01, noise_sigma=0.1, breakpoint=0.5, seed=None):
+def simulate_trend_breaks(T, N=1, slope1=0.01, slope2=-0.01, noise_sigma=0.1, breakpoint=0.5, seed=None):
     rng = np.random.default_rng(seed)
     t = np.arange(T).reshape(-1, 1)
     split = int(T * breakpoint)
