@@ -300,6 +300,66 @@ def simulate_season_trend_outliers(
     return Y, outlier_idx_all
 
 
+
+
+
+
+# --------------------------------------------------------------------
+# (F) Gaussian Random Walk: Pure diffusion without mean reversion
+# --------------------------------------------------------------------
+
+def simulate_random_walk(T, N=1, drift=0.0, sigma=1.0, seed=None):
+    rng = np.random.default_rng(seed)
+    steps = drift + sigma * rng.standard_normal(size=(T, N))
+    return np.cumsum(steps, axis=0)
+
+
+
+
+# --------------------------------------------------------------------
+# (G) Jump Diffusion Process: Discontinuous shocks + diffusion
+# --------------------------------------------------------------------
+
+def simulate_jump_diffusion(T, N=1, mu=0.0, sigma=1.0,
+                             jump_lambda=0.05, jump_mu=0.0, jump_sigma=5.0, seed=None):
+    rng = np.random.default_rng(seed)
+    dt = 1
+    normal_part = mu * dt + sigma * rng.standard_normal((T, N))
+    jumps = rng.poisson(jump_lambda, size=(T, N)) * rng.normal(jump_mu, jump_sigma, size=(T, N))
+    return np.cumsum(normal_part + jumps, axis=0)
+
+
+
+# ---------------------------------------------------------------------
+# (H) Multi-Frequency Seasonality: Sum of multiple sinusoids
+# ---------------------------------------------------------------------
+
+def simulate_multi_seasonality(T, N=1, freqs=(24, 100), amps=(1.0, 0.5), noise_sigma=0.1, seed=None):
+    rng = np.random.default_rng(seed)
+    t = np.arange(T).reshape(-1, 1)
+    signal = sum(A * np.sin(2 * np.pi * t / P) for A, P in zip(amps, freqs))
+    noise = noise_sigma * rng.standard_normal(size=(T, N))
+    return signal + noise
+
+
+
+
+# ---------------------------------------------------------------------
+# (I) Structural Break (Trend): Sudden slope shift in mean
+# ---------------------------------------------------------------------
+
+def simulate_trend_break(T, N=1, slope1=0.01, slope2=-0.01, noise_sigma=0.1, breakpoint=0.5, seed=None):
+    rng = np.random.default_rng(seed)
+    t = np.arange(T).reshape(-1, 1)
+    split = int(T * breakpoint)
+    trend = np.piecewise(t,
+                         [t < split, t >= split],
+                         [lambda t: slope1 * t, lambda t: slope1 * split + slope2 * (t - split)])
+    noise = noise_sigma * rng.standard_normal(size=(T, N))
+    return trend + noise
+
+
+
 # -----------------
 # Small demo usage
 # -----------------
@@ -360,3 +420,4 @@ if __name__ == "__main__":
     plt.tight_layout()
 
     plt.show()
+
